@@ -16,13 +16,15 @@ type uniformIconGen struct {
 }
 
 func (g *uniformIconGen) String() string {
-	return "uniform: icon of uniform color"
+	return "uniform: single uniform color"
 }
 
 func (g *uniformIconGen) NewIcon(width, height int) (*Icon, error) {
 	i := NewIcon(width, height)
-	v := uint8(g.r.Intn(255))
-	bg := image.NewUniform(&color.RGBA{v, v, v, 0xff})
+	re := uint8(g.r.Intn(255))
+	gr := uint8(g.r.Intn(255))
+	bl := uint8(g.r.Intn(255))
+	bg := image.NewUniform(&color.RGBA{re, gr, bl, 0xff})
 	draw.Draw(i.Image, i.Dim, bg, image.ZP, draw.Src)
 	return i, nil
 }

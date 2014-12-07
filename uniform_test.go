@@ -16,15 +16,15 @@ var (
 
 func TestUniformPresent(t *testing.T) {
 	if gen, exist := Registry["uniform"]; !exist {
-		t.Fatal("Couldn't find 'uniform' generator")
+		t.Fatal("couldn't find 'uniform' generator")
 	} else {
 		g = gen
 	}
 }
 
 func TestUniformStringer(t *testing.T) {
-	if g.String() != "uniform: icon of uniform color" {
-		t.Errorf("stringer mismatch: %v != %v", "uniform: icon of uniform color", g.String())
+	if g.String() != "uniform: single uniform color" {
+		t.Errorf("stringer mismatch: %v != %v", "uniform: single uniform color", g.String())
 	}
 }
 
@@ -92,4 +92,30 @@ func TestBadRegister(t *testing.T) {
 		}
 	}()
 	Register("uniform", g)
+}
+
+func BenchmarkUniform16x16(b *testing.B) {
+	g, ok := Registry["uniform"]
+	if !ok {
+		b.Fatal("couldn't find 'uniform' generator")
+	}
+	for i := 0; i < b.N; i++ {
+		_, err := g.NewIcon(16, 16)
+		if err != nil {
+			b.Fatalf("(%d) error generating icon: %s", i+1, err)
+		}
+	}
+}
+
+func BenchmarkUniform32x32(b *testing.B) {
+	g, ok := Registry["uniform"]
+	if !ok {
+		b.Fatal("couldn't find 'uniform' generator")
+	}
+	for i := 0; i < b.N; i++ {
+		_, err := g.NewIcon(32, 32)
+		if err != nil {
+			b.Fatalf("(%d) error generating icon: %s", i+1, err)
+		}
+	}
 }
