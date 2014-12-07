@@ -80,12 +80,12 @@ func TestBadEncoder(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := icon.Encode(Format("NieMaTakiego"), &b); err == nil {
+	if err := icon.Encode(Format("DefinitelyUnknownFormat"), &b); err == nil {
 		t.Errorf("didn't err on not defined image encoding")
 	}
 }
 
-func TestReRegister(t *testing.T) {
+func TestBadRegister(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil {
 			t.Errorf("didn't panic on already registered generator")
