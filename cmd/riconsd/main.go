@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"expvar"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -34,6 +35,12 @@ var (
 	fGens  bool
 	fBound int
 	fQuiet bool
+)
+
+var (
+	cMapGens = expvar.NewMap("generators")
+	cMapFmts = expvar.NewMap("formats")
+	cIntHits = expvar.NewInt("hits")
 )
 
 var (
@@ -105,6 +112,7 @@ func main() {
 }
 
 func handleInfo(w http.ResponseWriter, req *http.Request) {
+	cIntHits.Add(1)
 	log.Println(req.RemoteAddr, req.Method, req.RequestURI)
 
 	w.Header().Set("Content-Type", "application/json")
@@ -113,6 +121,7 @@ func handleInfo(w http.ResponseWriter, req *http.Request) {
 }
 
 func handleIcon(w http.ResponseWriter, req *http.Request) {
+	cIntHits.Add(1)
 	log.Println(req.RemoteAddr, req.Method, req.RequestURI)
 
 	w.Header().Set("Content-Type", "application/json")
@@ -162,6 +171,8 @@ func handleIcon(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte(`{"success": false, "msg": "error generating icon, sorry"}`))
 		return
 	}
+	cMapGens.Add(parts[1], 1)
+	cMapFmts.Add(parts[2], 1)
 	w.Header().Set("Content-Type", f.mime)
 	w.WriteHeader(http.StatusOK)
 	i.Encode(f.fmt, w)
