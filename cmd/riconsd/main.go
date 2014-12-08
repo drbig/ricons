@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -32,6 +33,7 @@ var (
 	fAddr  string
 	fGens  bool
 	fBound int
+	fQuiet bool
 	gens   map[string]string
 	fmts   map[string]format
 	info   []byte
@@ -45,6 +47,7 @@ func init() {
 	flag.StringVar(&fAddr, "a", ":3232", "server bind address")
 	flag.BoolVar(&fGens, "l", false, "show generators and exit")
 	flag.IntVar(&fBound, "b", 256, "image bound (e.g. max 256x256)")
+	flag.BoolVar(&fQuiet, "q", false, "disable logging")
 
 	gens = make(map[string]string, len(ricons.Registry))
 	for k, v := range ricons.Registry {
@@ -84,6 +87,9 @@ func main() {
 			fmt.Println(v)
 		}
 		os.Exit(0)
+	}
+	if fQuiet {
+		log.SetOutput(ioutil.Discard)
 	}
 
 	http.HandleFunc("/info.json", handleInfo)
