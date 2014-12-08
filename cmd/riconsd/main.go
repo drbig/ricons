@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -17,12 +18,18 @@ type format struct {
 	fmt  ricons.Format
 }
 
+type Info struct {
+	Generators map[string]string `json:"generators"`
+	Formats    []string          `json:"formats"`
+}
+
 var (
 	fAddr  string
 	fGens  bool
 	fBound int
 	gens   map[string]string
 	fmts   map[string]format
+	info   []byte
 )
 
 func init() {
@@ -44,6 +51,18 @@ func init() {
 		"gif":  format{"image/gif", ricons.GIF},
 		"jpeg": format{"image/jpeg", ricons.JPEG},
 	}
+
+	is := &Info{gens, make([]string, len(fmts))}
+	i := 0
+	for k, _ := range fmts {
+		is.Formats[i] = k
+		i++
+	}
+	in, err := json.Marshal(is)
+	if err != nil {
+		panic(fmt.Sprintf("can't marshal info: %s", err))
+	}
+	info = in
 }
 
 func main() {
@@ -55,9 +74,18 @@ func main() {
 		os.Exit(0)
 	}
 
+	http.HandleFunc("/info.json", handleInfo)
 	http.HandleFunc("/", handleIcon)
 	log.Println("HTTP server started at", fAddr)
 	log.Fatalln(http.ListenAndServe(fAddr, nil))
+}
+
+func handleInfo(w http.ResponseWriter, req *http.Request) {
+	log.Println(req.RequestURI)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(info)
+	return
 }
 
 func handleIcon(w http.ResponseWriter, req *http.Request) {
