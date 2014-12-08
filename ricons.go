@@ -11,6 +11,10 @@ import (
 	"io"
 )
 
+const (
+	VERSION = `0.0.1` // framework version
+)
+
 // Format is an enum of available image formats.
 type Format string
 

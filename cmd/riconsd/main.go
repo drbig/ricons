@@ -13,6 +13,10 @@ import (
 	"github.com/drbig/ricons"
 )
 
+const (
+	VERSION = `0.0.1`
+)
+
 type format struct {
 	mime string
 	fmt  ricons.Format
@@ -21,6 +25,7 @@ type format struct {
 type Info struct {
 	Generators map[string]string `json:"generators"`
 	Formats    []string          `json:"formats"`
+	Versions   map[string]string `json:"versions"`
 }
 
 var (
@@ -52,7 +57,14 @@ func init() {
 		"jpeg": format{"image/jpeg", ricons.JPEG},
 	}
 
-	is := &Info{gens, make([]string, len(fmts))}
+	is := &Info{
+		gens,
+		make([]string, len(fmts)),
+		map[string]string{
+			"ricons":  ricons.VERSION,
+			"riconsd": VERSION,
+		},
+	}
 	i := 0
 	for k, _ := range fmts {
 		is.Formats[i] = k
