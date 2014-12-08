@@ -88,8 +88,11 @@ func main() {
 
 	http.HandleFunc("/info.json", handleInfo)
 	http.HandleFunc("/", handleIcon)
-	log.Println("HTTP server started at", fAddr)
-	log.Fatalln(http.ListenAndServe(fAddr, nil))
+	log.Println("Starting HTTP server at", fAddr)
+	go func() {
+		log.Fatalln(http.ListenAndServe(fAddr, nil))
+	}()
+	sigwait()
 }
 
 func handleInfo(w http.ResponseWriter, req *http.Request) {
