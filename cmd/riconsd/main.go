@@ -81,7 +81,7 @@ func main() {
 }
 
 func handleInfo(w http.ResponseWriter, req *http.Request) {
-	log.Println(req.RequestURI)
+	log.Println(req.RemoteAddr, req.Method, req.RequestURI)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(info)
@@ -89,7 +89,7 @@ func handleInfo(w http.ResponseWriter, req *http.Request) {
 }
 
 func handleIcon(w http.ResponseWriter, req *http.Request) {
-	log.Println(req.RequestURI)
+	log.Println(req.RemoteAddr, req.Method, req.RequestURI)
 
 	w.Header().Set("Content-Type", "application/json")
 	parts := strings.Split(req.URL.Path, "/")
