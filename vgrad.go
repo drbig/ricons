@@ -1,3 +1,5 @@
+// See LICENSE.txt for licensing information.
+
 // Vgrad generates simple vertical gradients.
 
 package ricons

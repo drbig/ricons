@@ -1,3 +1,5 @@
+// See LICENSE.txt for licensing information.
+
 // Grid generates grid-based icons.
 
 package ricons

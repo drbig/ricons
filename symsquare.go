@@ -1,3 +1,5 @@
+// See LICENSE.txt for licensing information.
+
 // Square-based symmetric icons.
 
 package ricons

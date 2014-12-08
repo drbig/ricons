@@ -1,4 +1,4 @@
-// Tests the basics of the framework on a concrete Generator.
+// See LICENSE.txt for licensing information.
 
 package ricons
 

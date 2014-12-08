@@ -1,3 +1,5 @@
+// See LICENSE.txt for licensing information.
+
 // Uniform generates an uniformly colored icon.
 // Useful for testing, not very interesting in practice.
 

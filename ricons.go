@@ -1,3 +1,5 @@
+// See LICENSE.txt for licensing information.
+
 // Package ricons implements random icon generator framework.
 package ricons
 
