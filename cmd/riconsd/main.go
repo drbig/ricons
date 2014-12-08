@@ -34,9 +34,12 @@ var (
 	fGens  bool
 	fBound int
 	fQuiet bool
-	gens   map[string]string
-	fmts   map[string]format
-	info   []byte
+)
+
+var (
+	gens map[string]string
+	fmts map[string]format
+	info []byte
 )
 
 func init() {
@@ -136,7 +139,6 @@ func handleIcon(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(`{"success": false, "msg": "error parsing image width"}`))
 		return
-
 	}
 	if wi < 1 || wi > fBound {
 		w.WriteHeader(http.StatusBadRequest)
