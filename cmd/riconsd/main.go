@@ -114,24 +114,24 @@ func handleIcon(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	parts := strings.Split(req.URL.Path, "/")
-	if len(parts) != 6 {
+	if len(parts) != 5 {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(`{"success": false, "msg": "wrong request URI"}`))
 		return
 	}
-	g, ok := ricons.Registry[parts[2]]
+	g, ok := ricons.Registry[parts[1]]
 	if !ok {
 		w.WriteHeader(http.StatusNotImplemented)
 		w.Write([]byte(`{"success": false, "msg": "generator not found"}`))
 		return
 	}
-	f, ok := fmts[parts[3]]
+	f, ok := fmts[parts[2]]
 	if !ok {
 		w.WriteHeader(http.StatusNotImplemented)
 		w.Write([]byte(`{"success": false, "msg": "unknown image format"}`))
 		return
 	}
-	wi, err := strconv.Atoi(parts[4])
+	wi, err := strconv.Atoi(parts[3])
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(`{"success": false, "msg": "error parsing image width"}`))
@@ -143,7 +143,7 @@ func handleIcon(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte(`{"success": false, "msg": "image width out of range"}`))
 		return
 	}
-	h, err := strconv.Atoi(parts[5])
+	h, err := strconv.Atoi(parts[4])
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(`{"success": false, "msg": "error parsing image height"}`))
