@@ -8,12 +8,9 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-	"math/rand"
-	"time"
 )
 
 type symsquareIconGen struct {
-	r *rand.Rand
 	s int
 	p []color.Color
 	b image.Image
@@ -29,12 +26,12 @@ func (g *symsquareIconGen) NewIcon(width, height int) (*Icon, error) {
 
 	cx := width / 2
 	cy := height / 2
-	c := image.NewUniform(g.p[g.r.Intn(len(g.p))])
+	c := image.NewUniform(g.p[<-chRnd%len(g.p)])
 
 	for cnt := 0; cnt < 8; cnt++ {
-		s := g.r.Intn(cx / 2)
-		x := g.r.Intn(cx - s)
-		y := g.r.Intn(cy - s)
+		s := <-chRnd % (cx / 2)
+		x := <-chRnd % (cx - s)
+		y := <-chRnd % (cy - s)
 
 		r := image.Rect(x, y, x+s, y+s)
 		draw.Draw(i.Image, r, c, image.ZP, draw.Src)
@@ -54,7 +51,6 @@ func (g *symsquareIconGen) NewIcon(width, height int) (*Icon, error) {
 
 func init() {
 	g := &symsquareIconGen{
-		rand.New(rand.NewSource(time.Now().Unix())),
 		5,
 		[]color.Color{
 			color.RGBA{0xaa, 0x66, 0x66, 0xff},

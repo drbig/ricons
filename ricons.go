@@ -11,6 +11,8 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io"
+	"math/rand"
+	"time"
 )
 
 const (
@@ -51,8 +53,10 @@ var (
 	ErrUnknownFormat = errors.New("icon encode: unknown format")
 )
 
-// Global Generators registry.
-var Registry = make(map[string]Generator, 0)
+var (
+	Registry = make(map[string]Generator, 0) // global Generators registry
+	chRnd    = make(chan (int))              // global random byte channel
+)
 
 // Register registers a generator at compile time.
 // It will panic if you try to overwrite an already existing Generator.
@@ -89,4 +93,13 @@ func (i *Icon) Encode(f Format, o io.Writer) error {
 	default:
 		return ErrUnknownFormat
 	}
+}
+
+func init() {
+	go func() {
+		r := rand.New(rand.NewSource(time.Now().Unix()))
+		for {
+			chRnd <- r.Intn(255)
+		}
+	}()
 }

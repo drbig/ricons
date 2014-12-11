@@ -4,13 +4,7 @@
 
 package ricons
 
-import (
-	"math/rand"
-	"time"
-)
-
 type vgradIconGen struct {
-	r *rand.Rand
 }
 
 func (g *vgradIconGen) String() string {
@@ -20,7 +14,7 @@ func (g *vgradIconGen) String() string {
 func (g *vgradIconGen) NewIcon(width, height int) (*Icon, error) {
 	i := NewIcon(width, height)
 
-	re := g.r.Intn(255)
+	re := <-chRnd
 	sr := re / height
 	if sr == 0 {
 		sr = 1
@@ -31,7 +25,7 @@ func (g *vgradIconGen) NewIcon(width, height int) (*Icon, error) {
 	if sr == 0 {
 		sr = 1
 	}
-	gr := g.r.Intn(255)
+	gr := <-chRnd
 	sg := gr / height
 	if sg == 0 {
 		sg = 1
@@ -39,7 +33,7 @@ func (g *vgradIconGen) NewIcon(width, height int) (*Icon, error) {
 	if gr > 128 {
 		sg = -sg
 	}
-	bl := g.r.Intn(255)
+	bl := <-chRnd
 	sb := bl / height
 	if bl > 128 {
 		sb = -sb
@@ -67,6 +61,6 @@ func (g *vgradIconGen) NewIcon(width, height int) (*Icon, error) {
 }
 
 func init() {
-	g := &vgradIconGen{rand.New(rand.NewSource(time.Now().Unix()))}
+	g := &vgradIconGen{}
 	Register("vgrad", g)
 }

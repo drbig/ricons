@@ -8,12 +8,9 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-	"math/rand"
-	"time"
 )
 
 type gridIconGen struct {
-	r *rand.Rand
 	s int
 	p []color.Color
 	b image.Image
@@ -34,18 +31,18 @@ func (g *gridIconGen) NewIcon(width, height int) (*Icon, error) {
 	}
 
 	for i := 0; i < 8; i++ {
-		x := g.r.Intn(g.s)
-		y := g.r.Intn(g.s)
+		x := <-chRnd % g.s
+		y := <-chRnd % g.s
 		gr[x][y] = true
-		if g.r.Float32() > 0.5 {
+		if <-chRnd > 126 {
 			gr[g.s-x-1][y] = true
 		}
-		if g.r.Float32() > 0.5 {
+		if <-chRnd > 126 {
 			gr[x][g.s-y-1] = true
 		}
 	}
 
-	c := image.NewUniform(g.p[g.r.Intn(len(g.p))])
+	c := image.NewUniform(g.p[<-chRnd%len(g.p)])
 	w := width / g.s
 	h := height / g.s
 	for y := 0; y < g.s; y++ {
@@ -62,7 +59,6 @@ func (g *gridIconGen) NewIcon(width, height int) (*Icon, error) {
 
 func init() {
 	g := &gridIconGen{
-		rand.New(rand.NewSource(time.Now().Unix())),
 		5,
 		[]color.Color{
 			color.RGBA{0xaa, 0x66, 0x66, 0xff},
