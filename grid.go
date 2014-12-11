@@ -22,7 +22,8 @@ func (g *gridIconGen) String() string {
 
 func (g *gridIconGen) NewIcon(width, height int) (*Icon, error) {
 	i := NewIcon(width, height)
-	draw.Draw(i.Image, image.Rect(0, 0, width, height), g.b, image.ZP, draw.Src)
+	r := image.Rect(0, 0, width, height)
+	draw.Draw(i.Image, r, g.b, image.ZP, draw.Src)
 
 	gr := make([][]bool, g.s)
 	el := make([]bool, g.s*g.s)
@@ -48,7 +49,10 @@ func (g *gridIconGen) NewIcon(width, height int) (*Icon, error) {
 	for y := 0; y < g.s; y++ {
 		for x := 0; x < g.s; x++ {
 			if gr[x][y] {
-				r := image.Rect(x*w, y*h, (x+1)*w, (y+1)*h)
+				r.Min.X = x * w
+				r.Min.Y = y * h
+				r.Max.X = (x + 1) * w
+				r.Max.Y = (y + 1) * h
 				draw.Draw(i.Image, r, c, image.ZP, draw.Src)
 			}
 		}
