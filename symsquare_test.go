@@ -26,6 +26,8 @@ func BenchmarkSymsquare16x16(b *testing.B) {
 	if !ok {
 		b.Fatal("couldn't find 'symsquare' generator")
 	}
+	ic := NewIcon(16, 16)
+	iconPool[ic.Image.Bounds()] = ic
 	for i := 0; i < b.N; i++ {
 		_, err := g.NewIcon(16, 16)
 		if err != nil {
@@ -39,6 +41,8 @@ func BenchmarkSymsquare32x32(b *testing.B) {
 	if !ok {
 		b.Fatal("couldn't find 'symsquare' generator")
 	}
+	ic := NewIcon(32, 32)
+	iconPool[ic.Image.Bounds()] = ic
 	for i := 0; i < b.N; i++ {
 		_, err := g.NewIcon(32, 32)
 		if err != nil {

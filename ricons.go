@@ -51,8 +51,10 @@ var (
 	ErrUnknownFormat = errors.New("icon encode: unknown format")
 )
 
-// Global Generators registry.
-var Registry = make(map[string]Generator, 0)
+var (
+	Registry = make(map[string]Generator, 0)      // global Generators registry
+	iconPool = make(map[image.Rectangle]*Icon, 0) // icon pool
+)
 
 // Register registers a generator at compile time.
 // It will panic if you try to overwrite an already existing Generator.
@@ -67,26 +69,33 @@ func Register(name string, g Generator) {
 // This includes default EncoderOptions.
 func NewIcon(width, height int) *Icon {
 	dim := image.Rect(0, 0, width, height)
-	return &Icon{
-		Dim:   dim,
-		Image: image.NewRGBA(dim),
-		EncoderOpts: &EncoderOptions{
-			GIF:  &gif.Options{NumColors: 256},
-			JPEG: &jpeg.Options{Quality: 75},
-		},
+	i, exist := iconPool[dim]
+	if !exist {
+		i = &Icon{
+			Dim:   dim,
+			Image: image.NewRGBA(dim),
+		}
 	}
+	i.EncoderOpts = &EncoderOptions{
+		GIF:  &gif.Options{NumColors: 256},
+		JPEG: &jpeg.Options{Quality: 75},
+	}
+	return i
 }
 
 // Encode encodes and writes a given Icon in the given image format.
 func (i *Icon) Encode(f Format, o io.Writer) error {
+	var err error
 	switch f {
 	case PNG:
-		return png.Encode(o, i.Image)
+		err = png.Encode(o, i.Image)
 	case GIF:
-		return gif.Encode(o, i.Image, i.EncoderOpts.GIF)
+		err = gif.Encode(o, i.Image, i.EncoderOpts.GIF)
 	case JPEG:
-		return jpeg.Encode(o, i.Image, i.EncoderOpts.JPEG)
+		err = jpeg.Encode(o, i.Image, i.EncoderOpts.JPEG)
 	default:
-		return ErrUnknownFormat
+		err = ErrUnknownFormat
 	}
+	iconPool[i.Image.Bounds()] = i
+	return err
 }
