@@ -10,7 +10,7 @@ Features / Bugs:
 - Benchmarks for generators
 - Includes full-fledged HTTP icon server command
 - Probably not so bad performance via HTTP (in terms of k req/s)
-- Currently not optimised in any way (except for being simple)
+- Icon pool for better performance
 - It's fun
 
 ## Showcase
@@ -32,7 +32,20 @@ You may notice the generators have been inspired by what I've already seen onlin
 
 ### Raw generator benchmarks
 
-On Linux x64, Intel i7-2620M @ 2.70GHz:
+Current benchmark, done on Linux x64, Intel i7-2620M @ 2.70GHz:
+
+    PASS
+    BenchmarkGrid16x16        500000              3971 ns/op
+    BenchmarkGrid32x32        500000              4596 ns/op
+    BenchmarkSymsquare16x16   500000              6295 ns/op
+    BenchmarkSymsquare32x32   200000              7494 ns/op
+    BenchmarkUniform16x16    2000000               782 ns/op
+    BenchmarkUniform32x32    1000000              1028 ns/op
+    BenchmarkVgrad16x16      1000000              1731 ns/op
+    BenchmarkVgrad32x32       500000              6359 ns/op
+    ok      github.com/drbig/ricons 17.535s
+
+Initial benchmark, same hardware as above:
 
     $ go test -bench .
     PASS
@@ -98,7 +111,54 @@ As usual, the server exposes some statistics via `expvar` at `/debug/vars`:
 - `generators` - map counting successful icon creations for each generator
 - `hits` - total number of requests recived
 
-My non-scientific tests with `httperf` (two machines, 1Gbps LAN) indicate around 2k ~ 5k req/s for 32x32 icons depending on generator, though please treat it as a guesstimate.
+### riconsd httperf tests
+
+The results below have the following setup:
+
+- `riconsd` runs on the same i7 laptop, with `GOMAXPROCS = 4`
+- `httperf` runs on an old Core 2 Duo laptop, with `ulimit -n 4096`
+- The LAN is 1 Gbps
+- Both laptops don't do much else during the tests (i.e. no other significant load)
+- All generators are tested with the same arguments to `httperf`
+- All generators are outputting 32px x 32px PNG files
+- Still, these are general ballpark test
+
+Full output:
+
+    $ httperf --server 192.168.0.11 --port 3232 --hog --num-conns 256 --num-calls 32 --rate 256 --uri=/uniform/png/32/32
+    httperf --hog --client=0/1 --server=192.168.0.11 --port=3232 --uri=/uniform/png/32/32 --rate=256 --send-buffer=4096 --recv-buffer=16384 --num-conns=256 --num-calls=32
+    httperf: warning: open file limit > FD_SETSIZE; limiting max. # of open files to FD_SETSIZE
+    Maximum connect burst length: 1
+    
+    Total: connections 256 requests 8192 replies 8192 test-duration 3.154 s
+    
+    Connection rate: 81.2 conn/s (12.3 ms/conn, <=240 concurrent connections)
+    Connection time [ms]: min 178.7 avg 2027.3 max 2830.0 median 2173.5 stddev 537.4
+    Connection time [ms]: connect 0.3
+    Connection length [replies/conn]: 32.000
+    
+    Request rate: 2597.6 req/s (0.4 ms/req)
+    Request size [B]: 82.0
+    
+    Reply rate [replies/s]: min 0.0 avg 0.0 max 0.0 stddev 0.0 (0 samples)
+    Reply time [ms]: response 63.3 transfer 0.0
+    Reply size [B]: header 102.0 content 111.0 footer 0.0 (total 213.0)
+    Reply status: 1xx=0 2xx=8192 3xx=0 4xx=0 5xx=0
+    
+    CPU time [s]: user 0.30 system 2.85 (user 9.4% system 90.5% total 99.9%)
+    Net I/O: 750.5 KB/s (6.1*10^6 bps)
+    
+    Errors: total 0 client-timo 0 socket-timo 0 connrefused 0 connreset 0
+    Errors: fd-unavail 0 addrunavail 0 ftab-full 0 other 0
+
+Tabulated:
+
+| Generator | req/s  |
+| --------- | ------ |
+| uniform   | 2597.6 |
+| vgrad     | 2514.5 |
+| symsquare | 2487.4 |
+| grid      | 2542.0 |
 
 ## Contributing
 
