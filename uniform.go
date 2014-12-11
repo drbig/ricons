@@ -9,9 +9,12 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
+	"math/rand"
+	"time"
 )
 
 type uniformIconGen struct {
+	r *rand.Rand
 }
 
 func (g *uniformIconGen) String() string {
@@ -20,15 +23,15 @@ func (g *uniformIconGen) String() string {
 
 func (g *uniformIconGen) NewIcon(width, height int) (*Icon, error) {
 	i := NewIcon(width, height)
-	re := uint8(<-chRnd)
-	gr := uint8(<-chRnd)
-	bl := uint8(<-chRnd)
+	re := uint8(g.r.Intn(255))
+	gr := uint8(g.r.Intn(255))
+	bl := uint8(g.r.Intn(255))
 	bg := image.NewUniform(&color.RGBA{re, gr, bl, 0xff})
 	draw.Draw(i.Image, i.Dim, bg, image.ZP, draw.Src)
 	return i, nil
 }
 
 func init() {
-	g := &uniformIconGen{}
+	g := &uniformIconGen{rand.New(rand.NewSource(time.Now().Unix()))}
 	Register("uniform", g)
 }

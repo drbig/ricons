@@ -11,8 +11,6 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io"
-	"math/rand"
-	"time"
 )
 
 const (
@@ -55,7 +53,6 @@ var (
 
 var (
 	Registry = make(map[string]Generator, 0)      // global Generators registry
-	chRnd    = make(chan (int))                   // global random byte channel
 	iconPool = make(map[image.Rectangle]*Icon, 0) // icon pool
 )
 
@@ -101,13 +98,4 @@ func (i *Icon) Encode(f Format, o io.Writer) error {
 	}
 	iconPool[i.Image.Bounds()] = i
 	return err
-}
-
-func init() {
-	go func() {
-		r := rand.New(rand.NewSource(time.Now().Unix()))
-		for {
-			chRnd <- r.Intn(255)
-		}
-	}()
 }
