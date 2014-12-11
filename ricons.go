@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	VERSION = `0.0.1` // framework version
+	VERSION = `0.0.2` // framework version
 )
 
 // Format is an enum of available image formats.
