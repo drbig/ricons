@@ -10,8 +10,14 @@ Features / Bugs:
 - Benchmarks for generators
 - Includes full-fledged HTTP icon server command
 - Probably not so bad performance via HTTP (in terms of k req/s)
-- Icon pool for better performance
+- *Proper* image pool for better performance
 - It's fun
+
+### Current word from the author
+
+Sorry for the practically broken code with the previous version. This version should be better. And it's still fun.
+
+Also I believe there might be a bug in `math.Rand` (test under high concurrent load), but maybe it's just me.
 
 ## Showcase
 
@@ -32,20 +38,20 @@ You may notice the generators have been inspired by what I've already seen onlin
 
 ### Raw generator benchmarks
 
-Current benchmark, done on Linux x64, Intel i7-2620M @ 2.70GHz:
+v0.0.3 benchmark, done on Linux x64, Intel i7-2620M @ 2.70GHz:
 
     PASS
-    BenchmarkGrid16x16        500000              3971 ns/op
-    BenchmarkGrid32x32        500000              4596 ns/op
-    BenchmarkSymsquare16x16   500000              6295 ns/op
-    BenchmarkSymsquare32x32   200000              7494 ns/op
-    BenchmarkUniform16x16    2000000               782 ns/op
-    BenchmarkUniform32x32    1000000              1028 ns/op
-    BenchmarkVgrad16x16      1000000              1731 ns/op
-    BenchmarkVgrad32x32       500000              6359 ns/op
-    ok      github.com/drbig/ricons 17.535s
+    BenchmarkGrid16x16        300000              3634 ns/op
+    BenchmarkGrid32x32        300000              4261 ns/op
+    BenchmarkSymsquare16x16   200000              6077 ns/op
+    BenchmarkSymsquare32x32   200000              7381 ns/op
+    BenchmarkUniform16x16    3000000               473 ns/op
+    BenchmarkUniform32x32    2000000               725 ns/op
+    BenchmarkVgrad16x16      1000000              1555 ns/op
+    BenchmarkVgrad32x32       200000              6391 ns/op
+    ok      github.com/drbig/ricons 12.332s
 
-Initial benchmark, same hardware as above:
+Original benchmark, same hardware as above:
 
     $ go test -bench .
     PASS
@@ -113,9 +119,9 @@ As usual, the server exposes some statistics via `expvar` at `/debug/vars`:
 
 ### riconsd httperf tests
 
-The results below have the following setup:
+v0.0.3 results below have the following setup:
 
-- `riconsd` runs on the same i7 laptop, with `GOMAXPROCS = 4`
+- `riconsd` runs on the same i7 laptop, with `export GOMAXPROCS=4`
 - `httperf` runs on an old Core 2 Duo laptop, with `ulimit -n 4096`
 - The LAN is 1 Gbps
 - Both laptops don't do much else during the tests (i.e. no other significant load)
@@ -130,23 +136,23 @@ Full output:
     httperf: warning: open file limit > FD_SETSIZE; limiting max. # of open files to FD_SETSIZE
     Maximum connect burst length: 1
     
-    Total: connections 256 requests 8192 replies 8192 test-duration 3.154 s
+    Total: connections 256 requests 8192 replies 8192 test-duration 3.750 s
     
-    Connection rate: 81.2 conn/s (12.3 ms/conn, <=240 concurrent connections)
-    Connection time [ms]: min 178.7 avg 2027.3 max 2830.0 median 2173.5 stddev 537.4
+    Connection rate: 68.3 conn/s (14.6 ms/conn, <=250 concurrent connections)
+    Connection time [ms]: min 266.7 avg 2586.8 max 3452.7 median 2751.5 stddev 577.0
     Connection time [ms]: connect 0.3
     Connection length [replies/conn]: 32.000
     
-    Request rate: 2597.6 req/s (0.4 ms/req)
+    Request rate: 2184.7 req/s (0.5 ms/req)
     Request size [B]: 82.0
     
     Reply rate [replies/s]: min 0.0 avg 0.0 max 0.0 stddev 0.0 (0 samples)
-    Reply time [ms]: response 63.3 transfer 0.0
-    Reply size [B]: header 102.0 content 111.0 footer 0.0 (total 213.0)
+    Reply time [ms]: response 80.8 transfer 0.0
+    Reply size [B]: header 102.0 content 106.0 footer 0.0 (total 208.0)
     Reply status: 1xx=0 2xx=8192 3xx=0 4xx=0 5xx=0
     
-    CPU time [s]: user 0.30 system 2.85 (user 9.4% system 90.5% total 99.9%)
-    Net I/O: 750.5 KB/s (6.1*10^6 bps)
+    CPU time [s]: user 0.31 system 3.43 (user 8.4% system 91.6% total 99.9%)
+    Net I/O: 620.4 KB/s (5.1*10^6 bps)
     
     Errors: total 0 client-timo 0 socket-timo 0 connrefused 0 connreset 0
     Errors: fd-unavail 0 addrunavail 0 ftab-full 0 other 0
@@ -155,10 +161,10 @@ Tabulated:
 
 | Generator | req/s  |
 | --------- | ------ |
-| uniform   | 2597.6 |
-| vgrad     | 2514.5 |
-| symsquare | 2487.4 |
-| grid      | 2542.0 |
+| uniform   | 2184.7 |
+| vgrad     | 2101.3 |
+| symsquare | 2116.1 |
+| grid      | 2123.1 |
 
 ## Contributing
 
