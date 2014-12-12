@@ -24,10 +24,9 @@ func BenchmarkVgrad16x16(b *testing.B) {
 		b.Fatal("couldn't find 'vgrad' generator")
 	}
 	ic := NewIcon(16, 16)
-	iconPool[ic.Image.Bounds()] = ic
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, err := g.NewIcon(16, 16)
-		if err != nil {
+		if err := g.Generate(ic); err != nil {
 			b.Fatalf("(%d) error generating icon: %s", i+1, err)
 		}
 	}
@@ -39,10 +38,9 @@ func BenchmarkVgrad32x32(b *testing.B) {
 		b.Fatal("couldn't find 'vgrad' generator")
 	}
 	ic := NewIcon(32, 32)
-	iconPool[ic.Image.Bounds()] = ic
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, err := g.NewIcon(32, 32)
-		if err != nil {
+		if err := g.Generate(ic); err != nil {
 			b.Fatalf("(%d) error generating icon: %s", i+1, err)
 		}
 	}
