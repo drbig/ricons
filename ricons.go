@@ -11,6 +11,7 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io"
+	"sync"
 )
 
 const (
@@ -52,7 +53,9 @@ var (
 )
 
 var (
-	Registry = make(map[string]Generator, 0)      // global Generators registry
+	Registry = make(map[string]Generator, 0) // global Generators registry
+
+	mtx      sync.Mutex                           // icon pool mutex
 	iconPool = make(map[image.Rectangle]*Icon, 0) // icon pool
 )
 
@@ -69,7 +72,10 @@ func Register(name string, g Generator) {
 // This includes default EncoderOptions.
 func NewIcon(width, height int) *Icon {
 	dim := image.Rect(0, 0, width, height)
+	mtx.Lock()
 	i, exist := iconPool[dim]
+	delete(iconPool, dim)
+	mtx.Unlock()
 	if !exist {
 		i = &Icon{
 			Dim:   dim,
@@ -96,6 +102,8 @@ func (i *Icon) Encode(f Format, o io.Writer) error {
 	default:
 		err = ErrUnknownFormat
 	}
+	mtx.Lock()
 	iconPool[i.Image.Bounds()] = i
+	mtx.Unlock()
 	return err
 }
