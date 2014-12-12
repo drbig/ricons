@@ -15,7 +15,8 @@ import (
 )
 
 const (
-	VERSION = `0.0.2` // framework version
+	VERSION  = `0.0.2` // framework version
+	POOLSIZE = 256     // default image pool size
 )
 
 // Format is an enum of available image formats.
@@ -53,11 +54,12 @@ var (
 	ErrUnknownFormat = errors.New("icon encode: unknown format")
 )
 
-var (
-	Registry = make(map[string]Generator, 0) // global Generators registry
+// Registry holds a global map of registered Generators.
+var Registry = make(map[string]Generator, 0)
 
-	mtx      sync.Mutex                           // icon pool mutex
-	iconPool = make(map[image.Rectangle]*Icon, 0) // icon pool
+var (
+	mtx       sync.Mutex                           // image pool mutex
+	imagePool = make(map[image.Rectangle]*pool, 0) // hash of image pools
 )
 
 // Register registers a generator at compile time.
@@ -72,22 +74,22 @@ func Register(name string, g Generator) {
 // Icon returns a basic fully initialised Icon.
 // This includes default EncoderOptions.
 func NewIcon(width, height int) *Icon {
-	dim := image.Rect(0, 0, width, height)
+	d := image.Rect(0, 0, width, height)
 	mtx.Lock()
-	i, exist := iconPool[dim]
-	delete(iconPool, dim)
-	mtx.Unlock()
+	p, exist := imagePool[d]
 	if !exist {
-		i = &Icon{
-			Dim:   dim,
-			Image: image.NewRGBA(dim),
-		}
+		p = makePool(width, height, POOLSIZE)
+		imagePool[d] = p
 	}
-	i.EncoderOpts = &EncoderOptions{
-		GIF:  &gif.Options{NumColors: 256},
-		JPEG: &jpeg.Options{Quality: 75},
+	mtx.Unlock()
+	return &Icon{
+		Dim:   d,
+		Image: p.get(),
+		EncoderOpts: &EncoderOptions{
+			GIF:  &gif.Options{NumColors: 256},
+			JPEG: &jpeg.Options{Quality: 75},
+		},
 	}
-	return i
 }
 
 // Encode encodes and writes a given Icon in the given image format.
@@ -103,8 +105,6 @@ func (i *Icon) Encode(f Format, o io.Writer) error {
 	default:
 		err = ErrUnknownFormat
 	}
-	mtx.Lock()
-	iconPool[i.Dim] = i
-	mtx.Unlock()
+	imagePool[i.Dim].put(i.Image)
 	return err
 }
