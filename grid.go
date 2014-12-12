@@ -23,9 +23,8 @@ func (g *gridIconGen) String() string {
 	return "grid: grid-based icons"
 }
 
-func (g *gridIconGen) NewIcon(width, height int) (*Icon, error) {
-	i := NewIcon(width, height)
-	r := image.Rect(0, 0, width, height)
+func (g *gridIconGen) Generate(i *Icon) error {
+	r := i.Dim
 	draw.Draw(i.Image, r, g.b, image.ZP, draw.Src)
 
 	gr := make([][]bool, g.s)
@@ -47,8 +46,8 @@ func (g *gridIconGen) NewIcon(width, height int) (*Icon, error) {
 	}
 
 	c := image.NewUniform(g.p[g.r.Intn(len(g.p))])
-	w := width / g.s
-	h := height / g.s
+	w := i.Dim.Max.X / g.s
+	h := i.Dim.Max.Y / g.s
 	for y := 0; y < g.s; y++ {
 		for x := 0; x < g.s; x++ {
 			if gr[x][y] {
@@ -61,7 +60,12 @@ func (g *gridIconGen) NewIcon(width, height int) (*Icon, error) {
 		}
 	}
 
-	return i, nil
+	return nil
+}
+
+func (g *gridIconGen) NewIcon(width, height int) (*Icon, error) {
+	i := NewIcon(width, height)
+	return i, g.Generate(i)
 }
 
 func init() {

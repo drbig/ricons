@@ -36,7 +36,8 @@ type Icon struct {
 
 // Generator describes a minimal Icon generator.
 type Generator interface {
-	NewIcon(width, height int) (*Icon, error)
+	NewIcon(width, height int) (*Icon, error) // create, draw and return an Icon
+	Generate(i *Icon) error                   // draw into an existing Icon
 	fmt.Stringer
 }
 
@@ -103,7 +104,7 @@ func (i *Icon) Encode(f Format, o io.Writer) error {
 		err = ErrUnknownFormat
 	}
 	mtx.Lock()
-	iconPool[i.Image.Bounds()] = i
+	iconPool[i.Dim] = i
 	mtx.Unlock()
 	return err
 }

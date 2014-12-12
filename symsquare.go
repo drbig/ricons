@@ -23,9 +23,10 @@ func (g *symsquareIconGen) String() string {
 	return "symsquare: symmetric square-based icons"
 }
 
-func (g *symsquareIconGen) NewIcon(width, height int) (*Icon, error) {
-	i := NewIcon(width, height)
-	draw.Draw(i.Image, image.Rect(0, 0, width, height), g.b, image.ZP, draw.Src)
+func (g *symsquareIconGen) Generate(i *Icon) error {
+	draw.Draw(i.Image, i.Dim, g.b, image.ZP, draw.Src)
+	width := i.Dim.Max.X
+	height := i.Dim.Max.Y
 
 	cx := width / 2
 	cy := height / 2
@@ -49,7 +50,12 @@ func (g *symsquareIconGen) NewIcon(width, height int) (*Icon, error) {
 		draw.Draw(i.Image, r, c, image.ZP, draw.Src)
 	}
 
-	return i, nil
+	return nil
+}
+
+func (g *symsquareIconGen) NewIcon(width, height int) (*Icon, error) {
+	i := NewIcon(width, height)
+	return i, g.Generate(i)
 }
 
 func init() {

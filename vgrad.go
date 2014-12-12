@@ -17,8 +17,9 @@ func (g *vgradIconGen) String() string {
 	return "vgrad: simple vertical gradient"
 }
 
-func (g *vgradIconGen) NewIcon(width, height int) (*Icon, error) {
-	i := NewIcon(width, height)
+func (g *vgradIconGen) Generate(i *Icon) error {
+	width := i.Dim.Max.X
+	height := i.Dim.Max.Y
 
 	re := g.r.Intn(255)
 	sr := re / height
@@ -63,7 +64,13 @@ func (g *vgradIconGen) NewIcon(width, height int) (*Icon, error) {
 			bl += sb
 		}
 	}
-	return i, nil
+
+	return nil
+}
+
+func (g *vgradIconGen) NewIcon(width, height int) (*Icon, error) {
+	i := NewIcon(width, height)
+	return i, g.Generate(i)
 }
 
 func init() {

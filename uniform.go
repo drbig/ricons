@@ -21,14 +21,19 @@ func (g *uniformIconGen) String() string {
 	return "uniform: single uniform color"
 }
 
-func (g *uniformIconGen) NewIcon(width, height int) (*Icon, error) {
-	i := NewIcon(width, height)
+func (g *uniformIconGen) Generate(i *Icon) error {
 	re := uint8(g.r.Intn(255))
 	gr := uint8(g.r.Intn(255))
 	bl := uint8(g.r.Intn(255))
 	bg := image.NewUniform(&color.RGBA{re, gr, bl, 0xff})
 	draw.Draw(i.Image, i.Dim, bg, image.ZP, draw.Src)
-	return i, nil
+
+	return nil
+}
+
+func (g *uniformIconGen) NewIcon(width, height int) (*Icon, error) {
+	i := NewIcon(width, height)
+	return i, g.Generate(i)
 }
 
 func init() {
