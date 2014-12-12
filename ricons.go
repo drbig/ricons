@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	VERSION  = `0.0.2` // framework version
+	VERSION  = `0.0.3` // framework version
 	POOLSIZE = 256     // default image pool size
 )
 
